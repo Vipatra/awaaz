@@ -17,6 +17,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
                    libsndfile1 \
                    python3-pip \
                    python${PYTHON_VERSION} \
+                   libcudnn9-cuda-12 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements.txt file
