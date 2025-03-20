@@ -26,6 +26,10 @@ COPY requirements.txt requirements.txt
 # Install any needed packages specified in requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
+# Copy SSL Cert
+COPY /certs/nginx-selfsigned.crt /certs/nginx-selfsigned.crt
+COPY /certs/nginx-selfsigned.key /certs/nginx-selfsigned.key
+
 # Copy the rest of your application's code
 COPY . .
 
