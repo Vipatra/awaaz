@@ -38,7 +38,7 @@ ENV CERT_FILE=/certs/nginx-selfsigned.crt
 ENV KEY_FILE=/certs/nginx-selfsigned.key
 
 # Set the entrypoint to your application
-ENTRYPOINT ["python3", "-m", "src.main"]
+COPY entrypoint.sh /usr/src/app/entrypoint.sh
+RUN chmod +x /usr/src/app/entrypoint.sh
 
-# Provide a default command (can be overridden at runtime)
-CMD ["--host", "0.0.0.0", "--port", "8765", "--certfile", "${CERT_FILE}", "--keyfile", "${KEY_FILE}"]
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
