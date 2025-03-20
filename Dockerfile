@@ -1,7 +1,7 @@
 # Use an NVIDIA CUDA base image with Python 3
 FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04
 
-ENV PYTHON_VERSION=3.13
+ENV PYTHON_VERSION=3.11
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
