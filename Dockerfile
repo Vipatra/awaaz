@@ -34,9 +34,11 @@ EXPOSE 8765
 
 # Define environment variable
 ENV NAME=VoiceStreamAI
+ENV CERT_FILE=/certs/nginx-selfsigned.crt
+ENV KEY_FILE=/certs/nginx-selfsigned.key
 
 # Set the entrypoint to your application
 ENTRYPOINT ["python3", "-m", "src.main"]
 
 # Provide a default command (can be overridden at runtime)
-CMD ["--host", "0.0.0.0", "--port", "8765"]
+CMD ["--host", "0.0.0.0", "--port", "8765", "--certfile", "${CERT_FILE}", "--keyfile", "${KEY_FILE}"]
