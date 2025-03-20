@@ -33,7 +33,7 @@ COPY . .
 EXPOSE 8765
 
 # Define environment variable
-ENV NAME VoiceStreamAI
+ENV NAME=VoiceStreamAI
 
 # Set the entrypoint to your application
 ENTRYPOINT ["python3", "-m", "src.main"]
