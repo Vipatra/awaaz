@@ -4,6 +4,7 @@ from os import remove
 from pyannote.audio import Model
 from pyannote.audio.pipelines import VoiceActivityDetection
 
+from core.logging import log
 from src.audio_utils import save_audio_to_file
 
 from .vad_interface import VADInterface
@@ -58,6 +59,9 @@ class PyannoteVAD(VADInterface):
         remove(audio_file_path)
         vad_segments = []
         if len(vad_results) > 0:
+            log.debug("VAD segments", vad_results=vad_results)
+            for s in vad_results.itersegments():
+                log.debug("Vad segment", s=s)
             vad_segments = [
                 {"start": segment.start, "end": segment.end, "confidence": 1.0}
                 for segment in vad_results.itersegments()
