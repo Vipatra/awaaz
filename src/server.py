@@ -5,8 +5,10 @@ import uuid
 import urllib
 
 import websockets
+from asgi_correlation_id import correlation_id
 
 from core.auth import validate_api_key
+from core.logging import log
 from src.client import Client
 
 
@@ -63,7 +65,7 @@ class Server:
                     logging.debug(f"Updated config: {client.config}")
                     continue
             else:
-                print(f"Unexpected message type from {client.client_id}")
+                log.info(f"Unexpected message type from {client.client_id}")
 
             # this is synchronous, any async operation is in BufferingStrategy
             client.process_audio(
@@ -71,22 +73,26 @@ class Server:
             )
 
     async def handle_websocket(self, websocket):
+        new_correlation_id = str(uuid.uuid4())
+        log.info("New WebSocket connection", correlation_id=new_correlation_id)
+        correlation_id.set(new_correlation_id)
+
         parsed_url = urllib.parse.urlparse(websocket.path)
         query_params = urllib.parse.parse_qs(parsed_url.query)
-        print(f"Query params are {query_params}")
+        log.info("Query params are", query_params=query_params)
 
         api_keys = query_params.get("AWAAZ_API_KEY", None)
         api_key = None
         if isinstance(api_keys, list) and len(api_keys) > 0:
             api_key = api_keys[0]
 
-        print(f"API key is {api_key}")
+        log.debug(f"API key is", api_key=api_key)
         if not api_key:
             await websocket.close(code=4001, reason="Missing API Key")
             return
 
         if not await validate_api_key(api_key):
-            print("Invalid API Key")
+            log.debug("Invalid API Key")
             await websocket.close(code=4001, reason="Invalid API Key")
             return
 
@@ -94,12 +100,12 @@ class Server:
         client = Client(client_id, self.sampling_rate, self.samples_width)
         self.connected_clients[client_id] = client
 
-        print(f"Client {client_id} connected")
+        log.info("Client connected", client_id=client_id)
 
         try:
             await self.handle_audio(client, websocket)
         except websockets.ConnectionClosed as e:
-            print(f"Connection with {client_id} closed: {e}")
+            log.info(f"Connection closed", client_id=client_id, error=e)
         finally:
             del self.connected_clients[client_id]
 
@@ -115,7 +121,7 @@ class Server:
                 certfile=self.certfile, keyfile=self.keyfile
             )
 
-            print(
+            log.info(
                 f"WebSocket server ready to accept secure connections on "
                 f"{self.host}:{self.port}"
             )
@@ -127,7 +133,7 @@ class Server:
                 self.handle_websocket, self.host, self.port, ssl=ssl_context
             )
         else:
-            print(
+            log.info(
                 f"WebSocket server ready to accept secure connections on "
                 f"{self.host}:{self.port}"
             )

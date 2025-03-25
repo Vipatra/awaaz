@@ -177,5 +177,6 @@ pyrightconfig.json
 audio_files
 
 certs
+test_main.py
 
 # End of https://www.toptal.com/developers/gitignore/api/python
