@@ -73,12 +73,15 @@ class Server:
     async def handle_websocket(self, websocket):
         parsed_url = urllib.parse.urlparse(websocket.path)
         query_params = urllib.parse.parse_qs(parsed_url.query)
+        print(f"Query params are {query_params}")
         api_key = query_params.get("AWAAZ_API_KEY", None)
+        print(f"API key is {api_key}")
         if not api_key:
             await websocket.close(code=4001, reason="Missing API Key")
             return
 
         if not await validate_api_key(api_key):
+            print("Invalid API Key")
             await websocket.close(code=4001, reason="Invalid API Key")
             return
 
