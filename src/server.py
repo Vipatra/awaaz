@@ -85,7 +85,7 @@ class Server:
             await websocket.close(code=4001, reason="Missing API Key")
             return
 
-        if not await validate_api_key(api_key[0]):
+        if not await validate_api_key(api_key):
             print("Invalid API Key")
             await websocket.close(code=4001, reason="Invalid API Key")
             return
