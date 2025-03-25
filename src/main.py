@@ -88,7 +88,7 @@ def main():
         asr_pipeline,
         host=args.host,
         port=args.port,
-        sampling_rate=16000,
+        sampling_rate=8000,
         samples_width=2,
         certfile=args.certfile,
         keyfile=args.keyfile,
