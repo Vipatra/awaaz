@@ -6,6 +6,7 @@ import unittest
 from pydub import AudioSegment
 from sentence_transformers import SentenceTransformer, util
 
+from core.logging import log
 from src.asr.asr_factory import ASRFactory
 from src.client import Client
 
@@ -68,19 +69,19 @@ class TestWhisperASR(unittest.TestCase):
                 ).item()
                 similarities.append(similarity)
 
-                print(
+                log.info(
                     f"\nSegment from '{audio_file}' "
                     f"({segment['start']}-{segment['end']}s):"
                 )
-                print(f"Expected: {segment['transcription']}")
-                print(f"Actual: {transcription}")
-                print(f"Similarity: {similarity}")
+                log.info(f"Expected: {segment['transcription']}")
+                log.info(f"Actual: {transcription}")
+                log.info(f"Similarity: {similarity}")
 
                 self.client.scratch_buffer.clear()
 
             # Calculate average similarity for the file
             avg_similarity = sum(similarities) / len(similarities)
-            print(f"\nAverage similarity for '{audio_file}': {avg_similarity}")
+            log.info(f"\nAverage similarity for '{audio_file}': {avg_similarity}")
 
             # Assert that the average similarity is above the threshold
             self.assertGreaterEqual(
