@@ -38,10 +38,10 @@ class PyannoteVAD(VADInterface):
         pyannote_args = kwargs.get(
             "pyannote_args",
             {
-                "onset": 0.5,
-                "offset": 0.5,
-                "min_duration_on": 0.3,
-                "min_duration_off": 0.3,
+                "onset": 0.7, # the threshold at which the model detects the start of speech, default: 0.5
+                "offset": 0.3, # threshold for when speech is considered to have ended. default: 0.5
+                "min_duration_on": 0.5, # minimum duration of speech required for it to be considered valid, default: 0.3
+                "min_duration_off": 0.3, # how long silence must last for the model to consider that speech has ended and that a new speech segment may start. default: 0.3
             },
         )
         self.model = Model.from_pretrained(
