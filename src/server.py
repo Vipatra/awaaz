@@ -2,9 +2,11 @@ import json
 import logging
 import ssl
 import uuid
+import urllib
 
 import websockets
 
+from core.auth import validate_api_key
 from src.client import Client
 
 
@@ -69,6 +71,17 @@ class Server:
             )
 
     async def handle_websocket(self, websocket):
+        parsed_url = urllib.parse.urlparse(websocket.path)
+        query_params = urllib.parse.parse_qs(parsed_url.query)
+        api_key = query_params.get("AWAAZ_API_KEY", None)
+        if not api_key:
+            await websocket.close(code=4001, reason="Missing API Key")
+            return
+
+        if not await validate_api_key(api_key):
+            await websocket.close(code=4001, reason="Invalid API Key")
+            return
+
         client_id = str(uuid.uuid4())
         client = Client(client_id, self.sampling_rate, self.samples_width)
         self.connected_clients[client_id] = client
