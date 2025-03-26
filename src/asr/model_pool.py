@@ -26,7 +26,7 @@ def compute_model_pool_size():
 
     log.info("Available GPU memory", available_memory=available_memory)
 
-    available_memory *= 0.8
+    available_memory *= 0.9
 
     pool_size = math.floor(available_memory / model_memory_bytes)
     log.info("Computed model pool size", pool_size=pool_size, final_pool_size=max(1, pool_size))
