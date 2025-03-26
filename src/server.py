@@ -62,7 +62,7 @@ class Server:
                 config = json.loads(message)
                 if config.get("type") == "config":
                     client.update_config(config["data"])
-                    logging.debug(f"Updated config: {client.config}")
+                    log.info(f"Updated config: {client.config}")
                     continue
             else:
                 log.info(f"Unexpected message type from {client.client_id}")
