@@ -15,7 +15,10 @@ except ImportError:
 
 class CloudWatchMetrics:
     def __init__(self, namespace='AwaazService'):
-        self.cloudwatch = boto3.client('cloudwatch')
+        self.cloudwatch = boto3.client(
+            'cloudwatch',
+            region_name='ap-south-1',
+        )
         self.namespace = namespace
 
     def publish_metric(self, metric_name, value, unit='None', dimensions=None):
