@@ -71,7 +71,7 @@ def parse_args():
     parser.add_argument(
         "--cw-interval",
         type=int,
-        default=60,
+        default=5,
         help="Interval (in seconds) to publish metrics to CloudWatch",
     )
     return parser.parse_args()
