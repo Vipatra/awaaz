@@ -116,8 +116,12 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
         """
         start = time.perf_counter()
         vad_results = await vad_pipeline.detect_activity(self.client)
+        end = time.perf_counter()
+        time_diff = end - start
+        log.info("Time taken for vad", time_diff=time_diff)
 
         if len(vad_results) == 0:
+            log.info("VAD did not detect any speech")
             self.client.scratch_buffer.clear()
             self.client.buffer.clear()
             self.processing_flag = False
@@ -149,6 +153,12 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
                 transcription["audio_duration"] = audio_duration
                 json_transcription = json.dumps(transcription)
                 await websocket.send(json_transcription)
+
+                log.info(
+                    "Time taken processing",
+                    processing_time=formatted_processing_time,
+                    audio_duration=audio_duration
+                )
 
                 cw = get_metric_publisher()
                 cw.publish_metric(
