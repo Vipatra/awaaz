@@ -118,7 +118,15 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
             / (self.client.sampling_rate * self.client.samples_width)
         ) - self.chunk_offset_seconds
         if vad_results[-1]["end"] < last_segment_should_end_before:
-            transcription = await asr_pipeline.transcribe(self.client)
+
+            # transcription = await asr_pipeline.transcribe(self.client)
+
+            model_instance = await asr_pipeline.acquire()
+            try:
+                transcription = await model_instance.transcribe(self.client)
+            finally:
+                asr_pipeline.release(model_instance)
+
             if transcription["text"] != "":
                 end = time.time()
                 transcription["processing_time"] = end - start

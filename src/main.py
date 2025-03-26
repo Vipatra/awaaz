@@ -4,7 +4,7 @@ import json
 
 from core.logging import log
 from monitoring.metrics import publish_metrics_loop
-from src.asr.asr_factory import ASRFactory
+from src.asr.model_pool import compute_model_pool_size, ASRModelPool
 from src.vad.vad_factory import VADFactory
 
 from .server import Server
@@ -81,12 +81,18 @@ def main():
         log.info(f"Error parsing JSON arguments: {e}")
         return
 
+    # VAD
     vad_pipeline = VADFactory.create_vad_pipeline(args.vad_type, **vad_args)
-    asr_pipeline = ASRFactory.create_asr_pipeline(args.asr_type, **asr_args)
+
+    # ASR
+    pool_size = compute_model_pool_size()
+    log.info("Initializing ASR model pool", pool_size=pool_size)
+    asr_model_pool = ASRModelPool(pool_size=pool_size, asr_type=args.asr_type, model_kwargs=asr_args)
+    # asr_pipeline = ASRFactory.create_asr_pipeline(args.asr_type, **asr_args)
 
     server = Server(
         vad_pipeline,
-        asr_pipeline,
+        asr_model_pool,
         host=args.host,
         port=args.port,
         sampling_rate=8000,
