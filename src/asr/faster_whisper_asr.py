@@ -121,7 +121,7 @@ class FasterWhisperASR(ASRInterface):
 
     @staticmethod
     def get_model_memory_bytes():
-        return 4 * 1024**3 # 4 GB
+        return 3.6 * 1024**3 # 4 GB
 
     async def transcribe(self, client):
         file_path = await save_audio_to_file(
