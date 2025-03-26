@@ -68,6 +68,12 @@ def parse_args():
         choices=["debug", "info", "warning", "error"],
         help="Logging level: debug, info, warning, error. default: error",
     )
+    parser.add_argument(
+        "--cw-interval",
+        type=int,
+        default=60,
+        help="Interval (in seconds) to publish metrics to CloudWatch",
+    )
     return parser.parse_args()
 
 
@@ -104,7 +110,7 @@ def main():
     loop = asyncio.get_event_loop()
 
     loop.run_until_complete(server.start())
-    loop.create_task(publish_metrics_loop(server, interval=60))
+    loop.create_task(publish_metrics_loop(server, interval=args.cw_interval))
 
     log.info("Awaaz service is running")
     asyncio.get_event_loop().run_forever()
