@@ -3,6 +3,7 @@ import json
 import os
 import time
 
+from monitoring.metrics import get_metric_publisher
 from .buffering_strategy_interface import BufferingStrategyInterface
 
 
@@ -104,7 +105,7 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
             vad_pipeline: The voice activity detection pipeline.
             asr_pipeline: The automatic speech recognition pipeline.
         """
-        start = time.time()
+        start = time.perf_counter()
         vad_results = await vad_pipeline.detect_activity(self.client)
 
         if len(vad_results) == 0:
@@ -128,10 +129,42 @@ class SilenceAtEndOfChunk(BufferingStrategyInterface):
                 asr_pipeline.release(model_instance)
 
             if transcription["text"] != "":
-                end = time.time()
-                transcription["processing_time"] = end - start
+                end = time.perf_counter()
+                time_diff = end - start
+                formatted_processing_time = f"{time_diff:.4f}"
+                audio_duration = len(self.client.scratch_buffer) / (
+                    self.client.sampling_rate * self.client.samples_width
+                )
+
+                transcription["processing_time"] = formatted_processing_time
+                transcription["audio_duration"] = audio_duration
                 json_transcription = json.dumps(transcription)
                 await websocket.send(json_transcription)
+
+                cw = get_metric_publisher()
+                cw.publish_metric(
+                    "ChunkProcessingTime",
+                    float(formatted_processing_time),
+                    unit="Seconds",
+                )
+                cw.publish_metric(
+                    "TranscriptionLength",
+                    len(transcription["text"]),
+                    unit="None",
+                )
+                if audio_duration > 0:
+                    cw.publish_metric(
+                        "TranscriptionSpeed",
+                        len(transcription["text"]) / audio_duration,
+                        unit="None",
+                    )
+                    processing_eff = float(formatted_processing_time) / audio_duration
+                    cw.publish_metric(
+                        "ProcessingEfficiency",
+                        processing_eff,
+                        unit="None",
+                    )
+
             self.client.scratch_buffer.clear()
             self.client.increment_file_counter()
 

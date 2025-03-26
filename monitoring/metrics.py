@@ -55,6 +55,14 @@ class CloudWatchMetrics:
             return 0
 
 
+_metric_publisher = None
+def get_metric_publisher():
+    global _metric_publisher
+    if _metric_publisher is None:
+        _metric_publisher = CloudWatchMetrics()
+    return _metric_publisher
+
+
 async def publish_metrics_loop(server, interval=60):
     """
     Periodically collects and publishes metrics to CloudWatch.
@@ -62,7 +70,7 @@ async def publish_metrics_loop(server, interval=60):
     - server: instance of the Server class.
     - interval: how often (in seconds) to publish metrics.
     """
-    cw = CloudWatchMetrics()
+    cw = get_metric_publisher()
     while True:
         # Get GPU utilization (in MB)
         gpu_usage = cw.get_gpu_utilization()
