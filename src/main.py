@@ -3,6 +3,7 @@ import asyncio
 import json
 
 from core.logging import log
+from monitoring.metrics import publish_metrics_loop
 from src.asr.asr_factory import ASRFactory
 from src.vad.vad_factory import VADFactory
 
@@ -94,7 +95,12 @@ def main():
         keyfile=args.keyfile,
     )
 
-    asyncio.get_event_loop().run_until_complete(server.start())
+    loop = asyncio.get_event_loop()
+
+    loop.run_until_complete(server.start())
+    loop.create_task(publish_metrics_loop(server, interval=60))
+
+    log.info("Awaaz service is running")
     asyncio.get_event_loop().run_forever()
 
 
